@@ -1,0 +1,67 @@
+00000400 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 4/11/2020 2:34:35 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : HW1_Q4
+00000000                             3  * Written by : Jeremy Tandjung
+00000000                             4  * Date       : 04/11/2020
+00000000                             5  * Description:
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  
+00000000  =00004000                  8  addr1     EQU     $4000        
+00000000                             9  
+00000000  =00004001                 10  addr2     EQU     $4001 
+00000000                            11  
+00000000  =0000A7FF                 12  data2     EQU     $A7FF 
+00000000                            13  
+00000000  =00005555                 14  data3     EQU     $5555 
+00000000                            15  
+00000000  =00000000                 16  data4     EQU     $0000 
+00000000                            17  
+00000000  =00001246                 18  data5     EQU     4678 
+00000000                            19  
+00000000  =0000004F                 20  data6     EQU     %01001111 
+00000000                            21  
+00000000  =00000017                 22  data7     EQU     %00010111 
+00000000                            23  
+00000000                            24  ******************************************************************************
+00000000                            25  *
+00000000                            26  * Beginning of code segment. This is the actual assembly language instructions.
+00000000                            27  *
+00000000                            28  ******************************************************************************
+00000000                            29  
+00000400                            30   ORG $400
+00000400                            31  
+00000400  303C A7FF                 32  start   MOVE.W #data2, D0       * Load D0
+00000404  123C 004F                 33          MOVE.B #data6, D1       * Load D1
+00000408  143C 0017                 34          MOVE.B #data7, D2       * Load D2
+0000040C  363C 5555                 35          MOVE.W #data3, D3       * Load D3
+00000410  307C 4000                 36          MOVEA.W #addr1, A0      * Load address register
+00000414  10C1                      37          MOVE.B D1, (A0)+        * transfer byte to memory
+00000416  10C2                      38          MOVE.B    D2,(A0)+      * transfer second byte
+00000418  327C 4000                 39          MOVEA.W   #addr1,A1     * load address 
+0000041C  C751                      40          AND.W     D3,(A1)       * Logical AND
+0000041E                            41  
+0000041E                            42  *Stop here. The next instruction shows how a label is used
+0000041E                            43  
+0000041E  4EF8 0400                 44      JMP start
+00000422                            45  
+00000422                            46      END $400
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+ADDR1               4000
+ADDR2               4001
+DATA2               A7FF
+DATA3               5555
+DATA4               0
+DATA5               1246
+DATA6               4F
+DATA7               17
+START               400
