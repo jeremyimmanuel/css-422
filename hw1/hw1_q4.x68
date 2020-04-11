@@ -41,6 +41,6 @@ start   MOVE.W #data2, D0       * Load D0
 
 *Stop here. The next instruction shows how a label is used
 
-JMP start
+    JMP start
 
-END $400
+    END $400
