@@ -1,0 +1,49 @@
+00000400 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 4/12/2020 6:39:55 PM
+
+00000000                             1  * Jeremy Tandjung
+00000000                             2  
+00000000  =0000AAAA                  3  foo     EQU     $AAAA
+00000000  =00005555                  4  bar     EQU     $5555
+00000000  =0000FFFF                  5  mask    EQU     $FFFF
+00000000  =00000400                  6  start   EQU     $400
+00000000  =0000A000                  7  memory  EQU     $0000A000
+00000000  =00000001                  8  plus    EQU     $00000001
+00000000  =00002700                  9  magic   EQU     $2700
+00000000                            10  
+00000000                            11   
+00000000                            12  
+00000000                            13   
+00000400                            14      ORG start
+00000400  303C AAAA                 15          MOVE.W #foo,D0
+00000404  3E3C 5555                 16          MOVE.W #bar,D7
+00000408  207C 0000A000             17          MOVEA.L #memory,A0
+0000040E  2248                      18          MOVEA.L A0,A1
+00000410  1080                      19          MOVE.B D0,(A0)
+00000412  5288                      20          ADDA.L #plus,A0
+00000414  1087                      21          MOVE.B D7,(A0)
+00000416  5288                      22          ADDA.L #plus,A0
+00000418  363C FFFF                 23          MOVE.W #mask,D3
+0000041C  3083                      24          MOVE.W D3,(A0)
+0000041E  2811                      25          MOVE.L (A1),D4
+00000420  4844                      26          SWAP D4
+00000422  2C04                      27          MOVE.L D4,D6
+00000424  2286                      28          MOVE.L D6,(A1)
+00000426  4E72 2700                 29          STOP #magic
+0000042A                            30      END start
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+BAR                 5555
+FOO                 AAAA
+MAGIC               2700
+MASK                FFFF
+MEMORY              A000
+PLUS                1
+START               400

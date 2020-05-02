@@ -1,0 +1,6 @@
+START ORG $400
+
+        MOVE.W #$FFFFA000, D0 * D0 : $0000A000
+        MOVE.L #$FFFFA000, D0 * D0: $FFFFA000
+
+    END START

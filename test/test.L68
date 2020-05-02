@@ -1,0 +1,22 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 4/15/2020 3:36:32 PM
+
+00000000                             1  
+00000400                             2      ORG $400
+00000400                             3  
+00000400  41F9 00009100              4          LEA $9100, A0
+00000406                             5          * MOVE.B $00004340, D3
+00000406  1639 FFFF4340              6          MOVE.B $FFFF4340, D3
+0000040C  3679 0000A340              7          MOVEA.W $A340, A3
+00000412                             8          
+Line 9 WARNING: Address expected
+00000412                             9      END
+
+No errors detected
+1 warning generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------

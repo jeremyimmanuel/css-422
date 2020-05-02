@@ -1,0 +1,29 @@
+00000400 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 4/29/2020 1:34:33 PM
+
+00000400                             1      ORG $400
+00000400                             2  
+00000400                             3  START:
+00000400                             4  
+00000400                             5      * ROL.W #3, D0
+00000400                             6  
+00000400                             7      * MOVEM.W A0-A2/D7/D5, -(A7)
+00000400                             8  
+00000400                             9  
+00000400                            10      *  A0 AB123456, 11111
+00000400                            11      * LEA 8000, A0
+00000400                            12      
+00000400                            13      
+00000400  E640                      14      ASR.W #3, D0
+00000402                            15  
+00000402                            16      END START
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+START               400

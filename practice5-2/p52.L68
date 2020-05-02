@@ -1,0 +1,28 @@
+00000400 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 4/28/2020 10:16:56 PM
+
+00000400                             1      ORG $400
+00000400                             2  
+00000400                             3  START:
+00000400                             4  
+00000400                             5      * CMP.W D1, D2
+00000400                             6      * BCLR #3, D0
+00000400                             7  
+00000400                             8  
+00000400                             9      * CMP.L D1, D0
+00000400                            10  *    OR.W D1, D0
+00000400                            11  
+00000400                            12  
+00000400  0200 007D                 13      ANDI.B #%01111101, D0
+00000404                            14      
+00000404                            15      END START
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+START               400

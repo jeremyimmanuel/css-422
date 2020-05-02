@@ -1,0 +1,24 @@
+00000400 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 5/2/2020 1:21:18 PM
+
+00000400                             1      ORG $400
+00000400                             2  
+00000400                             3  START:
+00000400                             4      
+00000400                             5      *MOVE.L #$C198F382, D0
+00000400                             6      
+00000400                             7      *ASL.L #4, D0
+00000400                             8      
+00000400  EE08                       9      LSR.B #7, D0
+00000402                            10  
+00000402                            11      END START
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+START               400
