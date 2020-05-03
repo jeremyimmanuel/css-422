@@ -1,134 +1,139 @@
-00001026 Starting Address
+0000102A Starting Address
 Assembler used: EASy68K Editor/Assembler v5.16.01
-Created On: 5/2/2020 6:50:19 PM
+Created On: 5/2/2020 7:53:38 PM
 
 00001000                             1      ORG $1000
 00001000                             2  
 00001000  =00004000                  3  startAddr   EQU     $4000
 00001000  =00006000                  4  endAddr     EQU     $6000
-00001000= 00000000                   5  Addr1       DC.L    0
-00001004                             6  Addsum      DS.W    0
-00001004                             7  CarryBit    DS.B    0
-00001004                             8  
-00001004= 41 64 64 72 31 20 ...      9  ADDR1STRING     DC.B 'Addr1 : ', 0
-0000100D= 41 64 64 73 75 6D ...     10  ADDSUMSTRING    DC.B 'Addsum : ', 0
-00001017= 43 61 72 72 79 42 ...     11  CARRYBITSTRING  DC.B 'CarryBit : ', 0
-00001023                            12  
-00001023                            13  
-00001023                            14  
-00001023  =0000000D                 15  CR          EQU     $0D
-00001023  =0000000A                 16  LF          EQU     $0A
-00001023= 0D 0A 00                  17  NEWLINE     DC.B    CR,LF,0
-00001026                            18  
-00001026                            19  
-00001026                            20  
-00001026                            21  START:
-00001026  2C7C 00004000             22          MOVEA.L #$4000, A6
-0000102C  13FC 0012 0000B000        23          MOVE.B #$12, $B000
-00001034  3079 0000B000             24          MOVEA.W $B000, A0
-0000103A  1039 0000B000             25          MOVE.B ($B000), D0
-00001040                            26          
-00001040  11FC 0012 4020            27          MOVE.B #$12, $4020
-00001046                            28  
-00001046                            29  
-00001046  BDFC 00006000             30  FIND_LOOP   CMPA.L #$6000, A6 * check if in range between $4000 and $6000
-0000104C  6C00 000A                 31              BGE OUT             * if greater than ending address, stop
-00001050                            32  
-00001050  B01E                      33              CMP.B (A6)+, D0 * check value at curr address
-00001052  6700 0010                 34              BEQ EQUAL       * if equal branch to EQUAL
-00001056  60EE                      35              BRA FIND_LOOP   * LOOP AGAIN
-00001058                            36  
-00001058  2278 4000                 37  OUT         MOVEA.L $4000, A1
-0000105C  21C9 1000                 38              MOVE.L A1, Addr1
-00001060  6000 0024                 39              BRA SUM256
-00001064                            40  
-00001064  538E                      41  EQUAL       SUBA.L #1, A6       * decrement address by 1 because of post incrementation in prev instructions
-00001066  21CE 1000                 42              MOVE.L A6, Addr1    * Put address in Addr1 var
-0000106A  6000 0002                 43              BRA SUM256SETUP          * Branch to ADD256
-0000106E                            44  
-0000106E                            45  
-0000106E                            46  SUM256SETUP * Setup start and end address
-0000106E  2E78 1000                 47              MOVEA.L Addr1, A7      * we want to store the loop ending address at A7 
-00001072  DFFC 0000000A             48              ADDA.L #10, A7     * Add 256 bytes because of the instructions
-00001078                            49  
-00001078                            50              * Setup inital values
-00001078  31FC 0000 1004            51              MOVE.W #0, Addsum   * initialize Addsum as 0
-0000107E  11FC 0000 1004            52              MOVE.B #0, CarryBit * initialize CarryBit as 0
-00001084                            53  
-00001084  4241                      54              CLR D1              * Setup D1
-00001086                            55  
-00001086                            56  SUM256      * Check if iteration < 256
-00001086  BDCF                      57              CMPA.L A7, A6
-00001088  6C00 0016                 58              BGE DISPLAY        * BGE or BGT?
-0000108C                            59  
-0000108C                            60              * Add value to Addsum
-0000108C  121E                      61              MOVE.B (A6)+, D1    * move value in A6 to D1 and increment A6
-0000108E  D378 1004                 62              ADD.W D1, Addsum    * add value to Addsum
-00001092  6500 0004                 63              BCS GOTCARRY
-00001096  60EE                      64              BRA SUM256            
-00001098                            65  
-00001098                            66  
-00001098  11FC 0001 1004            67  GOTCARRY    MOVE.B #1, CarryBit
-0000109E  60E6                      68              BRA SUM256
-000010A0                            69  
-000010A0  43F8 1004                 70  DISPLAY     LEA ADDR1STRING, A1
-000010A4  103C 000E                 71              MOVE.B #14, D0
-000010A8  4E4F                      72              TRAP #15
-000010AA                            73  
-000010AA  43F8 1000                 74              LEA (Addr1), A1 
-000010AE  103C 0003                 75              MOVE.B #3, D0       * res
-000010B2  4E4F                      76              TRAP #15
-000010B4                            77  
-000010B4  43F8 1023                 78              LEA NEWLINE, A1
-000010B8  103C 000E                 79              MOVE.B #14, D0
-000010BC  4E4F                      80              TRAP #15
-000010BE                            81              
-000010BE                            82              
-000010BE                            83              
-000010BE  43F8 100D                 84              LEA ADDSUMSTRING, A1
-000010C2  103C 000E                 85              MOVE.B #14, D0
-000010C6  4E4F                      86              TRAP #15
-000010C8                            87  
-000010C8  43F8 1004                 88              LEA Addsum, A1
-000010CC  1A3C 0002                 89              MOVE.B #2, D5
-000010D0  4E4F                      90              TRAP #15
-000010D2                            91  
-000010D2  43F8 1023                 92              LEA NEWLINE, A1
-000010D6  103C 000E                 93              MOVE.B #14, D0
-000010DA  4E4F                      94              TRAP #15
-000010DC                            95  
-000010DC                            96  
-000010DC  43F8 1017                 97              LEA CARRYBITSTRING, A1
-000010E0  103C 000E                 98              MOVE.B #14, D0
-000010E4  4E4F                      99              TRAP #15
-000010E6                           100  
-000010E6  1238 1004                101              MOVE.B CarryBit, D1
-000010EA                           102  
-000010EA                           103      END START
+00001000                             5  Addr1       DS.L    1
+00001004                             6  Addsum      DS.W    1
+00001006                             7  CarryBit    DS.B    1
+00001007                             8  
+00001007= 41 64 64 72 31 20 ...      9  ADDR1STRING     DC.B 'Addr1 : ', 0
+00001010= 41 64 64 73 75 6D ...     10  ADDSUMSTRING    DC.B 'Addsum : ', 0
+0000101A= 43 61 72 72 79 42 ...     11  CARRYBITSTRING  DC.B 'CarryBit : ', 0
+00001026                            12  
+00001026                            13  
+00001026                            14  
+00001026  =0000000D                 15  CR          EQU     $0D
+00001026  =0000000A                 16  LF          EQU     $0A
+00001026= 0D 0A 00                  17  NEWLINE     DC.B    CR,LF,0
+00001029                            18  
+00001029                            19  
+00001029                            20  
+00001029                            21  START:
+0000102A  2C7C 00004000             22          MOVEA.L #$4000, A6
+00001030  13FC 0012 0000B000        23          MOVE.B #$12, $B000
+00001038  3079 0000B000             24          MOVEA.W $B000, A0
+0000103E  1039 0000B000             25          MOVE.B ($B000), D0
+00001044                            26          
+00001044  11FC 0012 4010            27          MOVE.B #$12, $4010
+0000104A                            28  
+0000104A                            29  
+0000104A  BDFC 00006000             30  FIND_LOOP   CMPA.L #$6000, A6 * check if in range between $4000 and $6000
+00001050  6C00 000A                 31              BGE OUT             * if greater than ending address, stop
+00001054                            32  
+00001054  B01E                      33              CMP.B (A6)+, D0 * check value at curr address
+00001056  6700 0012                 34              BEQ EQUAL       * if equal branch to EQUAL
+0000105A  60EE                      35              BRA FIND_LOOP   * LOOP AGAIN
+0000105C                            36  
+0000105C  227C 00004000             37  OUT         MOVEA.L #$4000, A1
+00001062  21C9 1000                 38              MOVE.L A1, Addr1
+00001066  6000 0020                 39              BRA SUM256
+0000106A                            40  
+0000106A  538E                      41  EQUAL       SUBA.L #1, A6       * decrement address by 1 because of post incrementation in prev instructions
+0000106C  21CE 1000                 42              MOVE.L A6, Addr1    * Put address in Addr1 var
+00001070  6000 0002                 43              BRA SUM256SETUP          * Branch to ADD256
+00001074                            44  
+00001074                            45  
+00001074                            46  SUM256SETUP * Setup start and end address
+00001074  2E78 1000                 47              MOVEA.L Addr1, A7      * we want to store the loop ending address at A7 
+00001078  5A8F                      48              ADDA.L #5, A7     * Add 256 bytes because of the instructions
+0000107A                            49  
+0000107A                            50              * Setup inital values
+0000107A  31FC 0000 1004            51              MOVE.W #0, Addsum   * initialize Addsum as 0
+00001080  11FC 0000 1006            52              MOVE.B #0, CarryBit * initialize CarryBit as 0
+00001086                            53  
+00001086  4241                      54              CLR D1              * Setup D1
+00001088                            55  
+00001088                            56  SUM256      * Check if iteration < 256
+00001088  BDCF                      57              CMPA.L A7, A6
+0000108A  6C00 0022                 58              BGE DISPLAY        * BGE or BGT?
+0000108E                            59  
+0000108E                            60              * Add value to Addsum
+0000108E  121E                      61              MOVE.B (A6)+, D1    * move value in A6 to D1 and increment A6
+00001090  D378 1004                 62              ADD.W D1, Addsum    * add value to Addsum
+00001094  6500 0004                 63              BCS GOTCARRY
+00001098  60EE                      64              BRA SUM256            
+0000109A                            65  
+0000109A                            66  
+0000109A  11FC 0001 1006            67  GOTCARRY    MOVE.B #1, CarryBit
+000010A0  60E6                      68              BRA SUM256
+000010A2                            69  
+000010A2  43F8 1026                 70  PRINTLN     LEA NEWLINE, A1
+000010A6  103C 000E                 71              MOVE.B #14, D0
+000010AA  4E4F                      72              TRAP #15
+000010AC                            73  
+000010AC  4E75                      74              RTS
+000010AE                            75  
+000010AE  43F8 1007                 76  DISPLAY     LEA ADDR1STRING, A1
+000010B2  103C 000E                 77              MOVE.B #14, D0
+000010B6  4E4F                      78              TRAP #15
+000010B8                            79  
+000010B8  2238 1000                 80              MOVE.L Addr1, D1    * Prints
+000010BC  103C 0003                 81              MOVE.B #3, D0       * res
+000010C0  4E4F                      82              TRAP #15
+000010C2                            83  
+000010C2  61DE                      84              BSR PRINTLN
+000010C4                            85              
+000010C4                            86              
+000010C4  43F8 1010                 87              LEA ADDSUMSTRING, A1
+000010C8  103C 000E                 88              MOVE.B #14, D0
+000010CC  4E4F                      89              TRAP #15
+000010CE                            90  
+000010CE  3238 1004                 91              MOVE.W Addsum, D1
+000010D2  103C 0003                 92              MOVE.B #3, D0
+000010D6  4E4F                      93              TRAP #15
+000010D8                            94  
+000010D8  61C8                      95              BSR PRINTLN
+000010DA                            96  
+000010DA                            97  
+000010DA  43F8 101A                 98              LEA CARRYBITSTRING, A1
+000010DE  103C 000E                 99              MOVE.B #14, D0
+000010E2  4E4F                     100              TRAP #15
+000010E4                           101  
+000010E4  1238 1006                102              MOVE.B CarryBit, D1
+000010E8  103C 0003                103              MOVE.B #3, D0
+000010EC  4E4F                     104              TRAP #15
+000010EE                           105  
+Line 106 WARNING: Origin value is odd (Location counter set to next highest address)
+000010EE                           106      END START
 
 No errors detected
-No warnings generated
+1 warning generated
 
 
 SYMBOL TABLE INFORMATION
 Symbol-name         Value
 -------------------------
 ADDR1               1000
-ADDR1STRING         1004
+ADDR1STRING         1007
 ADDSUM              1004
-ADDSUMSTRING        100D
-CARRYBIT            1004
-CARRYBITSTRING      1017
+ADDSUMSTRING        1010
+CARRYBIT            1006
+CARRYBITSTRING      101A
 CR                  D
-DISPLAY             10A0
+DISPLAY             10AE
 ENDADDR             6000
-EQUAL               1064
-FIND_LOOP           1046
-GOTCARRY            1098
+EQUAL               106A
+FIND_LOOP           104A
+GOTCARRY            109A
 LF                  A
-NEWLINE             1023
-OUT                 1058
-START               1026
+NEWLINE             1026
+OUT                 105C
+PRINTLN             10A2
+START               1029
 STARTADDR           4000
-SUM256              1086
-SUM256SETUP         106E
+SUM256              1088
+SUM256SETUP         1074

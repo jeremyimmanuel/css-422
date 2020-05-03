@@ -2,7 +2,7 @@
 
 startAddr   EQU     $4000
 endAddr     EQU     $6000
-Addr1       DC.L    1
+Addr1       DS.L    1
 Addsum      DS.W    1
 CarryBit    DS.B    1
 
@@ -24,7 +24,7 @@ START:
         MOVEA.W $B000, A0
         MOVE.B ($B000), D0
         
-        MOVE.B #$12, $4020
+        MOVE.B #$12, $4010
 
 
 FIND_LOOP   CMPA.L #$6000, A6 * check if in range between $4000 and $6000
@@ -45,7 +45,7 @@ EQUAL       SUBA.L #1, A6       * decrement address by 1 because of post increme
 
 SUM256SETUP * Setup start and end address
             MOVEA.L Addr1, A7      * we want to store the loop ending address at A7 
-            ADDA.L #10, A7     * Add 256 bytes because of the instructions
+            ADDA.L #5, A7     * Add 256 bytes because of the instructions
 
             * Setup inital values
             MOVE.W #0, Addsum   * initialize Addsum as 0
@@ -67,31 +67,32 @@ SUM256      * Check if iteration < 256
 GOTCARRY    MOVE.B #1, CarryBit
             BRA SUM256
 
+PRINTLN     LEA NEWLINE, A1
+            MOVE.B #14, D0
+            TRAP #15
+
+            RTS
+
 DISPLAY     LEA ADDR1STRING, A1
             MOVE.B #14, D0
             TRAP #15
 
-            LEA (Addr1), A1 
+            MOVE.L Addr1, D1    * Prints
             MOVE.B #3, D0       * res
             TRAP #15
 
-            LEA NEWLINE, A1
-            MOVE.B #14, D0
-            TRAP #15
-            
+            BSR PRINTLN
             
             
             LEA ADDSUMSTRING, A1
             MOVE.B #14, D0
             TRAP #15
 
-            LEA Addsum, A1
-            MOVE.B #2, D5
+            MOVE.W Addsum, D1
+            MOVE.B #3, D0
             TRAP #15
 
-            LEA NEWLINE, A1
-            MOVE.B #14, D0
-            TRAP #15
+            BSR PRINTLN
 
 
             LEA CARRYBITSTRING, A1
@@ -99,7 +100,7 @@ DISPLAY     LEA ADDR1STRING, A1
             TRAP #15
 
             MOVE.B CarryBit, D1
-            MOVE.B #14, D0
+            MOVE.B #3, D0
             TRAP #15
 
     END START
