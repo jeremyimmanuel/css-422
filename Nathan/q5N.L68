@@ -1,0 +1,243 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 5/2/2020 4:16:49 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      : Pattern Finding and Cumulative Program
+00000000                             3  * Written by : Nathan Phan
+00000000                             4  * Date       : 4/28/2019
+00000000                             5  * Description: This program searches through the start and
+00000000                             6  *              and end addresses for a byte data pattern
+00000000                             7  *              and stores the address in memory. From this 
+00000000                             8  *              address, cumulatively adds the next 512 bytes
+00000000                             9  *              and stores the total sum as a word and displays
+00000000                            10  *              if there is a carry bit.
+00000000                            11  *-----------------------------------------------------------
+00000000                            12  
+00001000                            13      ORG    $1000
+00001000                            14  START:                          * Label for the first instruction of program
+00001000                            15  
+00001000  43F9 000011C9             16              LEA PROMPTALERT, A1 * This will prompt the user to put in a byte sized HEX thing
+00001006  103C 000E                 17              MOVE.B #14,D0
+0000100A  4E4F                      18              TRAP #15            * This will display the prompt
+0000100C                            19              
+0000100C  103C 0002                 20              MOVE.B #2,D0        * This will allow input / output operations
+00001010  4E4F                      21              TRAP #15            * This will read in a string from user to be stored in A1
+00001012  4240                      22              CLR D0              * This will make sure D0 is clear conversion subroutine begins
+00001014  4EB9 0000110A             23              JSR CONVERTFROMASCII    * This will jump to a subroutine for 
+0000101A                            24                                      * converting the inputted string from ascii to a usable value 
+0000101A                            25                                      * and eventually saving to $A000
+0000101A                            26                                      
+0000101A  247C 00006000             27              MOVEA.L #$6000, A2      * Put address $6000 into A1, it is the starting address
+00001020  1239 0000A000             28              MOVE.B ($A000),D1       * Store the contents of A1 into D1
+00001026  B5FC 00008000             29  READLOOP    CMPA.L #$8000, A2       * do a comparison with out current position and $8000 (the ending address)
+0000102C  6E00 000A                 30              BGT VALUENOTFOUNDCASE   * If it goes past $8000 and no match, go to the VALUENOTFOUNDCASE label
+00001030  B21A                      31              CMP.B (A2)+,D1          * Compare the contents at address locations A2 with D1
+00001032  6700 0014                 32              BEQ FOUND               * If it found a match, go to the FOUND label
+00001036  60EE                      33              BRA READLOOP            * If no match was found go to the start of the loop
+00001038                            34                         
+00001038  247C 00006000             35  VALUENOTFOUNDCASE    MOVEA.L #$6000, A2  * This will make the address $6000 as a default if never found
+0000103E  23CA 00001240             36                       MOVE.L A2, Addr1    * This will move the address from A2 to the Addr1 variable
+00001044  6000 0012                 37                       BRA ADDLOOPSTRT     * Branch to the addition loop
+00001048                            38  
+00001048  D5FC FFFFFFFF             39  FOUND       ADDA.L #-1,A2       * set back one place to get the address of the actual match
+0000104E  23CA 00001240             40              MOVE.L A2, Addr1    * store the address in the Addr1 variable
+00001054  6000 0002                 41              BRA ADDLOOPSTRT     * go to the start of the add loop
+00001058                            42  
+00001058  264A                      43  ADDLOOPSTRT MOVEA.L A2,A3       * Move the starting address into the ending address
+0000105A  D7FC 00000200             44              ADDA.L #512,A3      * add 512 to it to make it the actual ending address
+00001060  33FC 0000 00001244        45              MOVE.W #0,Addsum    * set our addition to 0
+00001068  13FC 0000 00001246        46              MOVE.B #0,CarryBit
+00001070  4242                      47              CLR D2              * clear D2 just in case
+00001072                            48              
+00001072  B5CB                      49  ADDLOOP     CMPA.L A3,A2        * compare our current address with the ending address
+00001074  6C00 001A                 50              BGE PRINT           * if the current address is greater than or equal to our ending address
+00001078                            51                                  * go to the print label
+00001078  141A                      52              MOVE.B (A2)+, D2    * move the contents of A2 into D2
+0000107A  D579 00001244             53              ADD.W  D2, Addsum   * add the current sum with D2
+00001080  6500 0004                 54              BCS SETCARRY        * if the carry was set, goto the SETCARRY label
+00001084  60EC                      55              BRA ADDLOOP         * otherwise go to the start of the loop
+00001086                            56              
+00001086  13FC 0001 00001246        57  SETCARRY    MOVE.B #1, CarryBit * Sets 1 as value for CarryBit variable 
+0000108E  60E2                      58              BRA ADDLOOP         * This was done to provide evidence that the print out was made
+00001090                            59                   
+00001090  43F9 000011C6             60  PRINT       LEA NEWLINE, A1     * Formatting changes for A1 
+00001096  103C 000E                 61              MOVE.B #14,D0
+0000109A  4E4F                      62              TRAP #15            * Show the print out
+0000109C                            63              
+0000109C  43F9 00001223             64              LEA ADDRONE, A1     * Place the ADDRONE into A1
+000010A2  103C 000E                 65              MOVE.B #14,D0
+000010A6  4E4F                      66              TRAP #15            * Show the print out
+000010A8                            67              
+000010A8  43F9 00001240             68              LEA Addr1, A1       * Place Addr1 into A1
+000010AE  1A3C 0004                 69              MOVE.B #4, D5       * copy 4 into D5 (number of bytes to print)
+000010B2  4EB9 0000115A             70              JSR PRINTHEX        * print the number at A1 in hex
+000010B8                            71              
+000010B8  43F9 000011C6             72              LEA NEWLINE, A1     * Place a blank newline into A1
+000010BE  103C 000E                 73              MOVE.B #14,D0
+000010C2  4E4F                      74              TRAP #15            * Show the print out
+000010C4                            75              
+000010C4  43F9 0000122B             76              LEA ADDSUMSTR, A1   * Place the ADDSUMSTR into A1
+000010CA  103C 000E                 77              MOVE.B #14,D0
+000010CE  4E4F                      78              TRAP #15            * Show the print out
+000010D0                            79              
+000010D0  43F9 00001244             80              LEA Addsum, A1      * Place Addsum into A1
+000010D6  1A3C 0002                 81              MOVE.B #2, D5       * Stores immediate 2 into D5 to represent the number of bytes for display
+000010DA  4EB9 0000115A             82              JSR PRINTHEX        * print the number at A1 in hex
+000010E0                            83              
+000010E0  43F9 000011C6             84              LEA NEWLINE, A1     * Place a blank newline into A1
+000010E6  103C 000E                 85              MOVE.B #14,D0
+000010EA  4E4F                      86              TRAP #15            * Show the print out
+000010EC                            87              
+000010EC                            88              
+000010EC  43F9 00001234             89              LEA THECARRYBIT, A1     * Place the ADDRONE into A1
+000010F2  103C 000E                 90              MOVE.B #14,D0
+000010F6  4E4F                      91              TRAP #15            * Show the print out
+000010F8                            92              
+000010F8                            93              
+000010F8  1239 00001246             94              MOVE.B CarryBit, D1
+000010FE  43F9 000011C9             95              LEA PROMPTALERT, A1        * Place the first message into A1
+00001104  103C 0003                 96              MOVE.B #3,D0
+00001108  4E4F                      97              TRAP #15            * Show the print out
+0000110A                            98              
+0000110A  267C 0000A000             99  CONVERTFROMASCII    MOVEA.L #$A000, A3
+00001110  1611                     100                      MOVE.B (A1),D3          * Stores the first hex character to D3
+00001112  B63C 0000                101                      CMP.B #0, D3            * check if we found the null terminator
+00001116  6700 0016                102                      BEQ ESCAPEFROMTHEBRANCH * If we do, return from subroutine
+0000111A  1819                     103                      MOVE.B (A1)+,D4         * Stores the first hex character to D4
+0000111C  E80B                     104                      LSR.B #4, D3            * Logical shift right of D3 to just get the top 4 bits
+0000111E  E90C                     105                      LSL.B #4, D4            * Logical shift left of D4 two times for bottom 4 bits
+00001120  E80C                     106                      LSR.B #4, D4
+00001122  B63C 0003                107                      CMP.B #3,D3             * If D3 is equal to 3, this hex value is a number
+00001126  6700 0008                108                      BEQ CONVERTNUMBER       * Goes to subroutine for converting value to a number
+0000112A  6000 0012                109                      BRA CONVERTLETTER
+0000112E                           110              
+0000112E  4E75                     111  ESCAPEFROMTHEBRANCH     RTS                 * Control flow away from CONVERT subroutines.            
+00001130                           112              
+00001130  B03C 0000                113  CONVERTNUMBER   CMP.B #0, D0
+00001134  6700 001A                114                  BEQ SHIFT
+00001138  4240                     115                  CLR D0
+0000113A  D91B                     116                  ADD.B D4, (A3)+    * move the number value into
+0000113C  60CC                     117                  BRA CONVERTFROMASCII
+0000113E                           118  
+0000113E  0604 0009                119  CONVERTLETTER   ADD.B #9, D4
+00001142  B03C 0000                120                  CMP.B #0, D0
+00001146  6700 0008                121                  BEQ SHIFT
+0000114A  4240                     122                  CLR D0
+0000114C  D91B                     123                  ADD.B D4, (A3)+
+0000114E  60BA                     124                  BRA CONVERTFROMASCII
+00001150                           125              
+00001150  E90C                     126  SHIFT       LSL.B #4, D4
+00001152  1684                     127              MOVE.B D4, (A3)
+00001154  103C 0001                128              MOVE.B #1, D0
+00001158  60B0                     129              BRA CONVERTFROMASCII
+0000115A                           130                          
+0000115A  BA3C 0000                131  PRINTHEX    CMP.B #0, D5
+0000115E  6700 002A                132              BEQ ESCAPEFROMPRINTHEX
+00001162  1611                     133              MOVE.B (A1),D3
+00001164  1819                     134              MOVE.B (A1)+,D4
+00001166                           135              
+00001166  E80B                     136              LSR.B #4, D3
+00001168  E90C                     137              LSL.B #4, D4
+0000116A  E80C                     138              LSR.B #4, D4
+0000116C                           139              
+0000116C  4246                     140              CLR D6
+0000116E  1203                     141              MOVE.B D3,D1
+00001170  B63C 000A                142              CMP.B #10,D3
+00001174  6D00 0016                143              BLT PRINTNUM
+00001178  6000 0028                144              BRA PRINTLET
+0000117C                           145  
+0000117C  1204                     146  PRINTSEC    MOVE.B D4,D1
+0000117E  B83C 000A                147              CMP.B #10,D4
+00001182  6D00 0008                148              BLT PRINTNUM
+00001186  6000 001A                149              BRA PRINTLET
+0000118A                           150                          
+0000118A  4E75                     151  ESCAPEFROMPRINTHEX  RTS           
+0000118C                           152              
+0000118C                           153              
+0000118C  0601 0030                154  PRINTNUM    ADD.B #$30, D1
+00001190  103C 0006                155              MOVE.B #6, D0
+00001194  4E4F                     156              TRAP #15
+00001196                           157              
+00001196  BC3C 0000                158              CMP.B #0, D6
+0000119A  6700 0020                159              BEQ SWAP
+0000119E                           160              
+0000119E  5305                     161              SUB.B #1, D5
+000011A0  60B8                     162              BRA PRINTHEX
+000011A2                           163  
+000011A2                           164  * This subroutine allows the printing of letters
+000011A2                           165  * Notice that it adds HEX value '40' to the 
+000011A2                           166  * Data Register #1 this is necessary for 
+000011A2                           167  * proper display. 
+000011A2  0401 0009                168  PRINTLET    SUB.B #9, D1
+000011A6  0601 0040                169              ADD.B #$40, D1
+000011AA  103C 0006                170              MOVE.B #6, D0
+000011AE  4E4F                     171              TRAP #15
+000011B0                           172              
+000011B0  BC3C 0000                173              CMP.B #0, D6
+000011B4  6700 0006                174              BEQ SWAP
+000011B8                           175              
+000011B8  5305                     176              SUB.B #1, D5
+000011BA  609E                     177              BRA PRINTHEX
+000011BC                           178  
+000011BC  1C3C 0001                179  SWAP        MOVE.B #1, D6
+000011C0  60BA                     180              BRA PRINTSEC
+000011C2                           181  
+000011C2                           182  * Put program code here
+000011C2                           183  
+000011C2  FFFF FFFF                184              SIMHALT             * halt simulator
+000011C6                           185  
+000011C6                           186  * Put variables and constants here
+000011C6                           187  
+000011C6  =0000000D                188  CR          EQU     $0D
+000011C6  =0000000A                189  LF          EQU     $0A
+000011C6= 0D 0A 00                 190  NEWLINE     DC.B    CR,LF,0
+000011C9                           191  
+000011C9= 50 6C 65 61 73 65 ...    192  PROMPTALERT DC.B    'Please enter a byte sized hex number. Please only represent letters in capital letters:',CR,LF,0
+00001223= 41 64 64 72 31 3A ...    193  ADDRONE     DC.B    'Addr1: ',0
+0000122B= 41 64 64 73 75 6D ...    194  ADDSUMSTR   DC.B    'Addsum: ',0
+00001234= 43 61 72 72 79 42 ...    195  THECARRYBIT DC.B    'CarryBit: ',0
+0000123F                           196  
+00001240                           197  Addr1       DS.L    1   * Declaring value for Addr1
+00001244                           198  Addsum      DS.W    1   * Declaring value for Addsum
+00001246                           199  CarryBit    DS.B    1   * Declaring value for CarryBit
+00001247                           200  
+00001247                           201  
+00001247                           202      END    START        * Last line of source code.
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+ADDLOOP             1072
+ADDLOOPSTRT         1058
+ADDR1               1240
+ADDRONE             1223
+ADDSUM              1244
+ADDSUMSTR           122B
+CARRYBIT            1246
+CONVERTFROMASCII    110A
+CONVERTLETTER       113E
+CONVERTNUMBER       1130
+CR                  D
+ESCAPEFROMPRINTHEX  118A
+ESCAPEFROMTHEBRANCH  112E
+FOUND               1048
+LF                  A
+NEWLINE             11C6
+PRINT               1090
+PRINTHEX            115A
+PRINTLET            11A2
+PRINTNUM            118C
+PRINTSEC            117C
+PROMPTALERT         11C9
+READLOOP            1026
+SETCARRY            1086
+SHIFT               1150
+START               1000
+SWAP                11BC
+THECARRYBIT         1234
+VALUENOTFOUNDCASE   1038

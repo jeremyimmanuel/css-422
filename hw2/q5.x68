@@ -1,41 +1,105 @@
     ORG $1000
 
+startAddr   EQU     $4000
+endAddr     EQU     $6000
+Addr1       DC.L    1
+Addsum      DS.W    1
+CarryBit    DS.B    1
+
+ADDR1STRING     DC.B 'Addr1 : ', 0
+ADDSUMSTRING    DC.B 'Addsum : ', 0
+CARRYBITSTRING  DC.B 'CarryBit : ', 0
 
 
 
-EQUAL:
+CR          EQU     $0D
+LF          EQU     $0A
+NEWLINE     DC.B    CR,LF,0
 
-    
-
-NOTEQUAL:
-
-
-OUT:
-
-COMPARE:
-    * check if in range between $4000 and $6000
-    CMPA.W $6000, A6
-    BGE OUT
-
-
-    
-    CMP.B (A6)+, (A0)   * check value at curr address
-    BEQ EQUAL           * if equal branch to EQUAL
-    BNE NOTEQUAL        * else; branch to NOTEQUAL
 
 
 START:
-
-    MOVEA $4000, A6
-
-
-    MOVE.B #$12, $B000
-
-    MOVEA.W $B000, A0
-
+        MOVEA.L #$4000, A6
+        MOVE.B #$12, $B000
+        MOVEA.W $B000, A0
+        MOVE.B ($B000), D0
+        
+        MOVE.B #$12, $4020
 
 
+FIND_LOOP   CMPA.L #$6000, A6 * check if in range between $4000 and $6000
+            BGE OUT             * if greater than ending address, stop
 
-    
+            CMP.B (A6)+, D0 * check value at curr address
+            BEQ EQUAL       * if equal branch to EQUAL
+            BRA FIND_LOOP   * LOOP AGAIN
+
+OUT         MOVEA.L #$4000, A1
+            MOVE.L A1, Addr1
+            BRA SUM256
+
+EQUAL       SUBA.L #1, A6       * decrement address by 1 because of post incrementation in prev instructions
+            MOVE.L A6, Addr1    * Put address in Addr1 var
+            BRA SUM256SETUP          * Branch to ADD256
+
+
+SUM256SETUP * Setup start and end address
+            MOVEA.L Addr1, A7      * we want to store the loop ending address at A7 
+            ADDA.L #10, A7     * Add 256 bytes because of the instructions
+
+            * Setup inital values
+            MOVE.W #0, Addsum   * initialize Addsum as 0
+            MOVE.B #0, CarryBit * initialize CarryBit as 0
+
+            CLR D1              * Setup D1
+
+SUM256      * Check if iteration < 256
+            CMPA.L A7, A6
+            BGE DISPLAY        * BGE or BGT?
+
+            * Add value to Addsum
+            MOVE.B (A6)+, D1    * move value in A6 to D1 and increment A6
+            ADD.W D1, Addsum    * add value to Addsum
+            BCS GOTCARRY
+            BRA SUM256            
+
+
+GOTCARRY    MOVE.B #1, CarryBit
+            BRA SUM256
+
+DISPLAY     LEA ADDR1STRING, A1
+            MOVE.B #14, D0
+            TRAP #15
+
+            LEA (Addr1), A1 
+            MOVE.B #3, D0       * res
+            TRAP #15
+
+            LEA NEWLINE, A1
+            MOVE.B #14, D0
+            TRAP #15
+            
+            
+            
+            LEA ADDSUMSTRING, A1
+            MOVE.B #14, D0
+            TRAP #15
+
+            LEA Addsum, A1
+            MOVE.B #2, D5
+            TRAP #15
+
+            LEA NEWLINE, A1
+            MOVE.B #14, D0
+            TRAP #15
+
+
+            LEA CARRYBITSTRING, A1
+            MOVE.B #14, D0
+            TRAP #15
+
+            MOVE.B CarryBit, D1
+            MOVE.B #14, D0
+            TRAP #15
 
     END START
