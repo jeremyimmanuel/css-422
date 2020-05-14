@@ -1,0 +1,46 @@
+00000400 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 5/4/2020 2:25:16 PM
+
+00000400                             1      ORG $400
+00000400                             2  
+00000400                             3  START:
+00000400                             4      *MOVE.L #$12, D0
+00000400  0644 0029                  5      ADD.W #41, D4
+00000404  1438 9000                  6      MOVE.B $FFFF9000, D2
+00000408                             7      
+00000408  C23C 0040                  8      AND.B #$40, D1
+0000040C                             9      
+0000040C                            10      * MOVE.L (A1)+, -(A3)
+0000040C                            11      
+0000040C                            12      * * Q10
+0000040C                            13      * ADD.W D2, $B468
+0000040C                            14      * AND.W A0, $A000
+0000040C                            15      * ADD.B (A1), D0
+0000040C                            16      * MOVEA.B D1, A5
+0000040C                            17      * ADD.B A0, D1
+0000040C                            18      * MOVE.W $3000, A3
+0000040C                            19      * ADD.W $1AA7C, D3
+0000040C                            20      * MOVE.L #$DDDDDDDD, D1
+0000040C                            21      * MOVE.L #$DDDDDDDD, D0
+0000040C                            22  
+0000040C                            23      * MOVE.W #$FFFF, D1
+0000040C                            24      * MOVE.W #$5555, D0
+0000040C                            25      * EOR.W   D1, D0
+0000040C                            26      * ADD.B   #1, D0
+0000040C                            27  
+0000040C  203C 0012B034             28      MOVE.L #$0012B034, D0
+00000412  7082                      29      MOVEQ #130, D0
+00000414                            30  
+00000414                            31  
+00000414                            32  
+00000414                            33      END START
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+START               400
